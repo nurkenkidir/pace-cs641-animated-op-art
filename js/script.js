@@ -18,7 +18,7 @@ let targetX = 0;
 let targetY = 0;
 let currentX = 0;
 let currentY = 0;
-const dampening = 0.05; // Smoothing factor for jittery device motion
+const dampening = 0.02; // Slower, smoother gliding factor
 
 // Handle Permission and Start
 const overlay = document.getElementById('permission-overlay');
@@ -50,16 +50,13 @@ startBtn.addEventListener('click', () => {
 
 function handleMotion(event) {
     // Extract acceleration including gravity (m/s^2)
-    // Scale it to pixel/phase targets
-
-    console.log(event)
-
     const acc = event.accelerationIncludingGravity;
     if (acc && acc.x !== null) {
-        // By using += instead of =, tilting the phone acts like a joystick velocity,
-        // causing it to continuously move in that direction forever!
-        targetX += (acc.x || 0) * 1.5;
-        targetY += (acc.y || 0) * 1.5;
+        // Absolute positional changes (parallax) instead of continuous scroll.
+        // This ensures the shapes don't fly off the screen forever.
+        // Multiplier set to 15 for a subtle but noticeable shift.
+        targetX = (acc.x || 0) * 15;
+        targetY = (acc.y || 0) * 15;
     }
 }
 
