@@ -1,4 +1,4 @@
-console.log("Version 1.0");
+console.log("Version 1.1");
 
 const canvas = document.getElementById('opArtCanvas');
 const ctx = canvas.getContext('2d');
@@ -50,15 +50,26 @@ startBtn.addEventListener('click', () => {
     }
 });
 
+let baselineX = null;
+let baselineY = null;
+
 function handleMotion(event) {
-    // Extract acceleration including gravity (m/s^2)
     const acc = event.accelerationIncludingGravity;
     if (acc && acc.x !== null) {
-        // Absolute positional changes (parallax) instead of continuous scroll.
-        // This ensures the shapes don't fly off the screen forever.
+        // Calibrate the baseline the very first time the sensor fires
+        if (baselineX === null) {
+            baselineX = acc.x || 0;
+            baselineY = acc.y || 0;
+        }
+
+        // Calculate how much the phone has moved relative to its starting position
+        const deltaX = (acc.x || 0) - baselineX;
+        const deltaY = (acc.y || 0) - baselineY;
+
+        // Absolute positional changes relative to the baseline
         // Multiplier set to 15 for a subtle but noticeable shift.
-        targetX = (acc.x || 0) * 15;
-        targetY = (acc.y || 0) * 15;
+        targetX = deltaX * 15;
+        targetY = deltaY * 15;
     }
 }
 
