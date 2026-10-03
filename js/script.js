@@ -1,4 +1,4 @@
-console.log("Version 1.2");
+console.log("Version 1.3");
 
 const canvas = document.getElementById('opArtCanvas');
 const ctx = canvas.getContext('2d');
@@ -20,7 +20,7 @@ let targetX = 0;
 let targetY = 0;
 let currentX = 0;
 let currentY = 0;
-const dampening = 0.02; // Slower, smoother gliding factor
+const dampening = 0.03; // Smooth gliding factor for intuitive physical tilt
 
 // Handle Permission and Start
 const overlay = document.getElementById('permission-overlay');
@@ -50,19 +50,29 @@ startBtn.addEventListener('click', () => {
     }
 });
 
+let baselineX = null;
+let baselineY = null;
+
 function handleMotion(event) {
-    // Pure acceleration without gravity. 
-    // This will be 0 when held perfectly still, regardless of the angle!
-    const acc = event.acceleration;
+    // accelerationIncludingGravity gives us the exact physical tilt angle of the phone
+    const acc = event.accelerationIncludingGravity;
     
     if (acc && acc.x !== null) {
-        // Since we are no longer dealing with gravity, we don't need a baseline.
-        // It naturally returns to 0 when you stop physically moving it.
-        
-        // Multiplier increased to 30 because physical acceleration spikes are
-        // usually quicker and smaller than gravity values.
-        targetX = (acc.x || 0) * 30;
-        targetY = (acc.y || 0) * 30;
+        // Calibrate: Whatever angle the user is holding the phone at when they click 'Start'
+        // becomes the neutral 0,0 center point.
+        if (baselineX === null) {
+            baselineX = acc.x || 0;
+            baselineY = acc.y || 0;
+        }
+
+        // Calculate how much the user is physically tilting away from their starting position
+        const deltaX = (acc.x || 0) - baselineX;
+        const deltaY = (acc.y || 0) - baselineY;
+
+        // Intuitive Parallax: Tilting the phone causes the background to physically slide 
+        // as if gravity is pulling it, making the art feel like a physical object inside the screen.
+        targetX = deltaX * 20;
+        targetY = deltaY * 20;
     }
 }
 
