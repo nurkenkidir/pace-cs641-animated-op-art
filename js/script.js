@@ -1,4 +1,4 @@
-console.log("Version 1.3");
+console.log("Version 1.4");
 
 const canvas = document.getElementById('opArtCanvas');
 const ctx = canvas.getContext('2d');
@@ -92,11 +92,13 @@ function drawWavyLines() {
     ctx.lineCap = 'round';
 
     const freq = 0.018;
-    const amp = 28;
+    
+    // BREATHING WAVES: Amplitude dynamically grows and shrinks based on the phone's Y-axis tilt (up/down)
+    const amp = Math.max(2, 28 + (currentY * 0.3));
 
-    // Apply motion to shift waves horizontally (phase) and vertically (offset)
+    // Shift waves horizontally (phase) based on X-axis tilt
     const waveOffsetX = currentX * 0.08;
-    const waveOffsetY = currentY * 0.8;
+    const waveOffsetY = currentY * 0.5;
 
     for (let i = -20; i < numLines + 20; i++) {
         ctx.beginPath();
@@ -126,10 +128,9 @@ function drawZigZagIllusion() {
     // To ensure the circle overflows the top and bottom, its radius must be > height / 2.
     const maxRadius = Math.max(height * 0.6, width * 0.5);
 
-    // Position the vortex so its left edge starts exactly at the leftSectionRatio.
-    // Left Edge = centerX - maxRadius => centerX = Left Edge + maxRadius
-    const centerX = (width * leftSectionRatio) + maxRadius + (currentX * 1.5);
-    const centerY = (height * 0.5) - (currentY * 1.5);
+    // Position the vortex. Parallax reduced slightly so it doesn't fly off screen while twisting.
+    const centerX = (width * leftSectionRatio) + maxRadius + (currentX * 0.5);
+    const centerY = (height * 0.5) - (currentY * 0.5);
 
     const N = 72;
     const numLayers = 32;
@@ -159,8 +160,12 @@ function drawZigZagIllusion() {
         let z_out = ((L + 1) % 2 === 0) ? A : -A;
         let w_out = ((L + 1) % 2 === 0) ? W_thick : W_thin;
 
+        // SWIRLING VORTEX: The outer layers rotate more aggressively than the inner layers 
+        // based on the phone's X-axis tilt, twisting the artwork into a dynamic whirlpool!
+        let twistOffset = currentX * 0.03 * Math.pow(L / numLayers, 1.5);
+
         for (let s = 0; s < N; s += 2) {
-            let base = s * d;
+            let base = s * d + twistOffset;
 
             let a_in_left = base + z_in - w_in / 2;
             let a_in_right = base + z_in + w_in / 2;
