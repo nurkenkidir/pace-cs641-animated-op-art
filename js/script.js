@@ -1,3 +1,5 @@
+console.log("Version 1.0");
+
 const canvas = document.getElementById('opArtCanvas');
 const ctx = canvas.getContext('2d');
 
