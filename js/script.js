@@ -1,4 +1,4 @@
-console.log("Version 1.1");
+console.log("Version 1.2");
 
 const canvas = document.getElementById('opArtCanvas');
 const ctx = canvas.getContext('2d');
@@ -50,26 +50,19 @@ startBtn.addEventListener('click', () => {
     }
 });
 
-let baselineX = null;
-let baselineY = null;
-
 function handleMotion(event) {
-    const acc = event.accelerationIncludingGravity;
+    // Pure acceleration without gravity. 
+    // This will be 0 when held perfectly still, regardless of the angle!
+    const acc = event.acceleration;
+    
     if (acc && acc.x !== null) {
-        // Calibrate the baseline the very first time the sensor fires
-        if (baselineX === null) {
-            baselineX = acc.x || 0;
-            baselineY = acc.y || 0;
-        }
-
-        // Calculate how much the phone has moved relative to its starting position
-        const deltaX = (acc.x || 0) - baselineX;
-        const deltaY = (acc.y || 0) - baselineY;
-
-        // Absolute positional changes relative to the baseline
-        // Multiplier set to 15 for a subtle but noticeable shift.
-        targetX = deltaX * 15;
-        targetY = deltaY * 15;
+        // Since we are no longer dealing with gravity, we don't need a baseline.
+        // It naturally returns to 0 when you stop physically moving it.
+        
+        // Multiplier increased to 30 because physical acceleration spikes are
+        // usually quicker and smaller than gravity values.
+        targetX = (acc.x || 0) * 30;
+        targetY = (acc.y || 0) * 30;
     }
 }
 
